@@ -10,6 +10,7 @@ namespace PokemonReviewApp.Helper
         {
             CreateMap<Pokemon, PokemonDTO>();
             CreateMap<Category, CategoryDTO>();
+            CreateMap<Country, CountryDTO>();
         }
     }
 }

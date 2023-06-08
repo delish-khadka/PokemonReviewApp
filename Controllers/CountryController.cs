@@ -30,7 +30,7 @@ namespace PokemonReviewApp.Controllers
             return Ok(countries);
         }
 
-        [HttpGet("{countryId")]
+        [HttpGet("{countryId}")]
         [ProducesResponseType(200, Type = typeof(Country))]
         [ProducesResponseType(400)]
         public IActionResult GetCountry(int countryId)

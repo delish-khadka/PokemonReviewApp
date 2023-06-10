@@ -9,7 +9,7 @@ namespace PokemonReviewApp.Helper
         public MappingProfiles()
         {
             CreateMap<Pokemon, PokemonDTO>();
-            CreateMap<Category, CategoryDTO>();
+            CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<Country, CountryDTO>();
             CreateMap<Owner, OwnerDTO>();
             CreateMap<Review, ReviewDTO>();

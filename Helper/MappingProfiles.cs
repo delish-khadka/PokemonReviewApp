@@ -12,7 +12,7 @@ namespace PokemonReviewApp.Helper
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<Country, CountryDTO>().ReverseMap();
             CreateMap<Owner, OwnerDTO>().ReverseMap();
-            CreateMap<Review, ReviewDTO>();
+            CreateMap<Review, ReviewDTO>().ReverseMap();
             CreateMap<Reviewer, ReviewerDTO>();
         }
     }

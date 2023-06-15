@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PokemonReviewApp.DTO;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
+using PokemonReviewApp.Repository;
 
 namespace PokemonReviewApp.Controllers
 {
@@ -95,6 +96,40 @@ namespace PokemonReviewApp.Controllers
             }
             return Ok("Successfully Created");
 
+        }
+
+        [HttpPut("{pokeId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdatePokemon(int pokeId,
+            [FromQuery] int ownerId, 
+            [FromQuery] int categoryId,
+            [FromBody] PokemonDTO updatePokemon)
+        {
+            if (updatePokemon == null)
+            {
+                return BadRequest(ModelState);
+            }
+            if (pokeId != updatePokemon.Id)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!_pokemonRepository.PokemonExists(pokeId))
+            {
+                return NotFound();
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var pokemonMap = _mapper.Map<Pokemon>(updatePokemon);
+            if (!_pokemonRepository.UpdatePokemon(ownerId, categoryId, pokemonMap))
+            {
+                ModelState.AddModelError("", "Something went wrong");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Identity.Client;
 using PokemonReviewApp.DTO;
 using PokemonReviewApp.Interfaces;
@@ -54,7 +55,7 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpGet("{ownerId}/pokemon")]
-        [ProducesResponseType(200,Type = typeof(Owner))]
+        [ProducesResponseType(200, Type = typeof(Owner))]
         [ProducesResponseType(400)]
         public IActionResult GetPokemonByOwner(int ownerId)
         {
@@ -73,7 +74,7 @@ namespace PokemonReviewApp.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateOwner([FromQuery] int countryId,[FromBody] OwnerDTO ownerCreate)
+        public IActionResult CreateOwner([FromQuery] int countryId, [FromBody] OwnerDTO ownerCreate)
         {
             if (ownerCreate == null)
             {
@@ -102,7 +103,7 @@ namespace PokemonReviewApp.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateOwner([FromQuery]int ownerId, [FromBody] OwnerDTO updateOwner)
+        public IActionResult UpdateOwner([FromQuery] int ownerId, [FromBody] OwnerDTO updateOwner)
         {
             if (updateOwner == null)
             {
@@ -125,6 +126,27 @@ namespace PokemonReviewApp.Controllers
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
+            }
+            return NoContent();
+        }
+
+        [HttpDelete("{ownerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteOwner(int ownerId)
+        {
+            if(!_ownerRepository.OwnerExists(ownerId))
+                return NoContent();
+
+            var ownerToDelete = _ownerRepository.GetOwner(ownerId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if(!_ownerRepository.DeleteOwner(ownerToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting");
             }
             return NoContent();
         }

@@ -1,4 +1,5 @@
-﻿using PokemonReviewApp.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using PokemonReviewApp.Data;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
 
@@ -44,7 +45,11 @@ namespace PokemonReviewApp.Repository
 
         public Pokemon GetPokemon(int id)
         {
-            return _context.Pokemons.Where(p=>p.Id == id).FirstOrDefault();
+
+            return _context.Pokemons
+                .Include(p => p.PokemonCategories)
+                .ThenInclude(pc => pc.Category) // Ensure Category is loaded
+                .FirstOrDefault(p => p.Id == id);
         }
 
         public Pokemon GetPokemon(string name)
@@ -64,7 +69,11 @@ namespace PokemonReviewApp.Repository
 
         public ICollection<Pokemon> GetPokemons()
         {
-            return _context.Pokemons.OrderBy(p=>p.Id).ToList();
+            return _context.Pokemons
+                .Include(p => p.PokemonCategories)
+                .ThenInclude(pc => pc.Category) 
+                .OrderBy(p=>p.Id)
+                .ToList();
         }
 
         public bool PokemonExists(int pokeId)

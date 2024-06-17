@@ -39,7 +39,7 @@ namespace PokemonReviewApp.Controllers
         }
 
         [HttpGet("{pokeId}")]
-        [ProducesResponseType(200, Type = typeof(Pokemon))]
+        [ProducesResponseType(200, Type = typeof(PokemonDTO))]
         [ProducesResponseType(400)]
         public IActionResult GetPokemon(int pokeId)
         {
@@ -47,7 +47,8 @@ namespace PokemonReviewApp.Controllers
             {
                 return NotFound();
             }
-            var pokemon = _mapper.Map<PokemonDTO>(_pokemonRepository.GetPokemon(pokeId));
+            var repdata = _pokemonRepository.GetPokemon(pokeId);
+            var pokemon = _mapper.Map<PokemonDTO>(repdata);          
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

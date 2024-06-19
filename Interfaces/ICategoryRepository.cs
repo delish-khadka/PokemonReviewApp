@@ -4,13 +4,13 @@ namespace PokemonReviewApp.Interfaces
 {
     public interface ICategoryRepository
     {
-        ICollection<Category> GetCategories();
-        Category GetCategory(int id);
-        ICollection<Pokemon> GetPokemonByCategory(int categoryId);
-        bool CategoryExists(int id);
-        bool CreateCategory(Category category);
-        bool Save();
-        bool UpdateCategory(Category category);
-        bool DeleteCategory(Category category);
+        Task<ICollection<Category>> GetCategories();
+        Task<Category> GetCategory(int id);
+        Task<ICollection<Pokemon>> GetPokemonByCategory(int categoryId);
+        Task<bool> CategoryExists(int id);
+        Task<bool> CreateCategory(Category category);
+        Task<bool> Save();
+        Task<bool> UpdateCategory(Category category);
+        Task<bool> DeleteCategory(Category category);
     }
 }

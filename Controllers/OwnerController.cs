@@ -98,7 +98,7 @@ namespace PokemonReviewApp.Controllers
                 return StatusCode(422, ModelState);
             }
             var ownerMap = _mapper.Map<Owner>(ownerCreate);
-            ownerMap.Country = _countryRepository.GetCountry(countryId);
+            ownerMap.Country = await _countryRepository.GetCountry(countryId);
             // Call the asynchronous CreateOwner method and await its result
             var isCreated = await _ownerRepository.CreateOwner(ownerMap);
 

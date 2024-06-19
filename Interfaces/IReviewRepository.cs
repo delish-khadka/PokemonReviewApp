@@ -4,14 +4,14 @@ namespace PokemonReviewApp.Interfaces
 {
     public interface IReviewRepository
     {
-        ICollection<Review> GetReviews();
-        Review GetReview(int reviewId);
-        ICollection<Review> GetReviewsOfAPokemon(int pokeId);
-        bool ReviewExists(int reviewId);
-        bool CreateReview(Review review);
-        bool Save();
-        bool UpdateReview(Review review);
-        bool DeleteReview(Review review);
-        bool DeleteReviews(List<Review> reviews);
+        Task<ICollection<Review>> GetReviews();
+        Task<Review> GetReview(int reviewId);
+        Task<ICollection<Review>> GetReviewsOfAPokemon(int pokeId);
+        Task<bool> ReviewExists(int reviewId);
+        Task<bool> CreateReview(Review review);
+        Task<bool> Save();
+        Task<bool> UpdateReview(Review review);
+        Task<bool> DeleteReview(Review review);
+        Task<bool> DeleteReviews(List<Review> reviews);
     }
 }

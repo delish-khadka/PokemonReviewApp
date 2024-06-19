@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using PokemonReviewApp.Data;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
@@ -15,55 +16,55 @@ namespace PokemonReviewApp.Repository
             
         }
 
-        public bool CreateReview(Review review)
+        public async Task<bool> CreateReview(Review review)
         {
             _context.Add(review);
-            return Save();
+            return await Save();
         }
 
-        public bool DeleteReview(Review review)
+        public async Task<bool> DeleteReview(Review review)
         {
             _context.Remove(review);
-            return Save();
+            return await Save();
         }
 
-        public bool DeleteReviews(List<Review> reviews)
+        public async Task<bool> DeleteReviews(List<Review> reviews)
         {
             _context.RemoveRange(reviews);
-            return Save();
+            return await Save();
 
         }
 
-        public Review GetReview(int reviewId)
+        public async Task<Review> GetReview(int reviewId)
         {
-            return _context.Reviews.Where(x => x.Id == reviewId).FirstOrDefault();
+            return await _context.Reviews.Where(x => x.Id == reviewId).FirstOrDefaultAsync();
         }
 
-        public ICollection<Review> GetReviews()
+        public async Task<ICollection<Review>> GetReviews()
         {
-            return _context.Reviews.ToList();
+            return await _context.Reviews.ToListAsync();
         }
 
-        public ICollection<Review> GetReviewsOfAPokemon(int pokeId)
+        public async Task<ICollection<Review>> GetReviewsOfAPokemon(int pokeId)
         {
-            return _context.Reviews.Where(r=>r.Pokemon.Id == pokeId).ToList();
+            return await _context.Reviews.Where(r=>r.Pokemon.Id == pokeId).ToListAsync();
         }
 
-        public bool ReviewExists(int reviewId)
+        public async Task<bool> ReviewExists(int reviewId)
         {
-            return _context.Reviews.Any(r=>r.Id == reviewId);
+            return await _context.Reviews.AnyAsync(r=>r.Id == reviewId);
         }
 
-        public bool Save()
+        public async Task<bool> Save()
         {
-            var saved = _context.SaveChanges();
+            var saved = await _context.SaveChangesAsync();
             return saved > 0?true :false;
         }
 
-        public bool UpdateReview(Review review)
+        public async Task<bool> UpdateReview(Review review)
         {
             _context.Update(review);
-            return Save();
+            return await Save();
         }
     }
 }

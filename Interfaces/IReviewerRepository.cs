@@ -4,13 +4,13 @@ namespace PokemonReviewApp.Interfaces
 {
     public interface IReviewerRepository
     {
-        ICollection<Reviewer> GetReviewers();
-        Reviewer GetReviewer(int reviewerId);
-       ICollection<Review> GetReviewsByReviewer(int reviewerId);
-        bool ReviewerExists(int reviewerId);
-        bool CreateReviewer(Reviewer reviewer);
-        bool DeleteReviewer(Reviewer reviewer);
-        bool Save();
-        bool UpdateReviewer(Reviewer reviewer);
+        Task<ICollection<Reviewer>> GetReviewers();
+        Task<Reviewer> GetReviewer(int reviewerId);
+        Task<ICollection<Review>> GetReviewsByReviewer(int reviewerId);
+        Task<bool> ReviewerExists(int reviewerId);
+        Task<bool> CreateReviewer(Reviewer reviewer);
+        Task<bool> DeleteReviewer(Reviewer reviewer);
+        Task<bool> Save();
+        Task<bool> UpdateReviewer(Reviewer reviewer);
     }
 }

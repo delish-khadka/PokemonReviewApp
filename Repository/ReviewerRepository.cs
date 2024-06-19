@@ -15,48 +15,48 @@ namespace PokemonReviewApp.Repository
             _context = context;
         }
 
-        public bool CreateReviewer(Reviewer reviewer)
+        public async Task<bool> CreateReviewer(Reviewer reviewer)
         {
-            _context.Add(reviewer);
-            return Save();
+            await _context.AddAsync(reviewer);
+            return await Save();
         }
 
-        public bool DeleteReviewer(Reviewer reviewer)
+        public async Task<bool> DeleteReviewer(Reviewer reviewer)
         {
             _context.Remove(reviewer);
-            return Save();
+            return await Save();
         }
 
-        public Reviewer GetReviewer(int reviewerId)
+        public async Task<Reviewer> GetReviewer(int reviewerId)
         {
-            return _context.Reviewers.Where(x => x.Id == reviewerId).Include(e=>e.Review).FirstOrDefault();
+            return await _context.Reviewers.Where(x => x.Id == reviewerId).Include(e=>e.Review).FirstOrDefaultAsync();
         }
 
-        public ICollection<Reviewer> GetReviewers()
+        public async Task<ICollection<Reviewer>> GetReviewers()
         {
-            return _context.Reviewers.ToList();
+            return await _context.Reviewers.ToListAsync();
         }
 
-        public ICollection<Review> GetReviewsByReviewer(int reviewerId)
+        public async Task<ICollection<Review>> GetReviewsByReviewer(int reviewerId)
         {
-            return _context.Reviews.Where(x=>x.Reviewer.Id == reviewerId).ToList();
+            return await _context.Reviews.Where(x=>x.Reviewer.Id == reviewerId).ToListAsync();
         }
 
-        public bool ReviewerExists(int reviewerId)
+        public async Task<bool> ReviewerExists(int reviewerId)
         {
-            return _context.Reviewers.Any(r => r.Id == reviewerId);
+            return await _context.Reviewers.AnyAsync(r => r.Id == reviewerId);
         }
 
-        public bool Save()
+        public async Task<bool> Save()
         {
-            var saved = _context.SaveChanges();
+            var saved = await _context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateReviewer(Reviewer reviewer)
+        public async Task<bool> UpdateReviewer(Reviewer reviewer)
         {
             _context.Update(reviewer);
-            return Save();
+            return await Save();
         }
     }
 }

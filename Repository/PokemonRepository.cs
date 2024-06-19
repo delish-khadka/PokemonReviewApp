@@ -13,10 +13,10 @@ namespace PokemonReviewApp.Repository
             _context = context;
         }
 
-        public bool CreatePokemon(int ownerId, int categoryId, Pokemon pokemon)
+        public async Task<bool> CreatePokemon(int ownerId, int categoryId, Pokemon pokemon)
         {
-            var pokemonOwnerEntity = _context.Owners.Where(a => a.Id == ownerId).FirstOrDefault();
-            var category = _context.Categories.Where(a => a.Id == categoryId).FirstOrDefault();
+            var pokemonOwnerEntity = await _context.Owners.Where(a => a.Id == ownerId).FirstOrDefaultAsync();
+            var category = await _context.Categories.Where(a => a.Id == categoryId).FirstOrDefaultAsync();
 
             var pokemonOwner = new PokemonOwner()
             {
@@ -24,42 +24,42 @@ namespace PokemonReviewApp.Repository
                 Pokemon = pokemon,
             };
 
-            _context.Add(pokemonOwner);
+            await _context.AddAsync(pokemonOwner);
 
             var pokemonCategory = new PokemonCategory()
             {
                 Category = category,
                 Pokemon = pokemon,
             };
-            _context.Add(pokemonCategory);
+            await _context.AddAsync(pokemonCategory);
 
-            _context.Add(pokemon);
-            return Save();
+            await _context.AddAsync(pokemon);
+            return await Save();
         }
 
-        public bool DeletePokemon(Pokemon pokemon)
+        public async Task<bool> DeletePokemon(Pokemon pokemon)
         {
             _context.Remove(pokemon);
-            return Save();
+            return await Save();
         }
 
-        public Pokemon GetPokemon(int id)
+        public async Task<Pokemon> GetPokemon(int id)
         {
 
-            return _context.Pokemons
+            return await _context.Pokemons
                 .Include(p => p.PokemonCategories)
                 .ThenInclude(pc => pc.Category) // Ensure Category is loaded
-                .FirstOrDefault(p => p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public Pokemon GetPokemon(string name)
+        public async Task<Pokemon> GetPokemon(string name)
         {
-            return _context.Pokemons.Where(p => p.Name == name).FirstOrDefault();
+            return await _context.Pokemons.Where(p => p.Name == name).FirstOrDefaultAsync();
         }
 
-        public decimal GetPokemonRating(int pokeId)
+        public async Task<decimal> GetPokemonRating(int pokeId)
         {
-            var review = _context.Reviews.Where(p => p.Pokemon.Id == pokeId);
+            var review = await _context.Reviews.Where(p => p.Pokemon.Id == pokeId).ToListAsync();
             if(review.Count() <= 0)
             {
                 return 0;
@@ -67,38 +67,38 @@ namespace PokemonReviewApp.Repository
             return ((decimal)review.Sum(r => r.Rating) / review.Count());
         }
 
-        public ICollection<Pokemon> GetPokemons()
+        public async Task<ICollection<Pokemon>> GetPokemons()
         {
-            return _context.Pokemons
+            return await _context.Pokemons
                 .Include(p => p.PokemonCategories)
                 .ThenInclude(pc => pc.Category) 
                 .OrderBy(p=>p.Id)
-                .ToList();
+                .ToListAsync();
         }
 
-        public bool PokemonExists(int pokeId)
+        public async Task<bool> PokemonExists(int pokeId)
         {
-            return _context.Pokemons.Any(x => x.Id == pokeId);
+            return await _context.Pokemons.AnyAsync(x => x.Id == pokeId);
         }
 
-        public bool Save()
+        public async Task<bool> Save()
         {
-            var saved = _context.SaveChanges();
+            var saved = await _context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdatePokemon(int ownerId, int categoryId, Pokemon pokemon)
+        public async Task<bool> UpdatePokemon(int ownerId, int categoryId, Pokemon pokemon)
         {
-            var pokemonOwnerEntity = _context.PokemonOwners.
-                Where(o => o.PokemonId == pokemon.Id).FirstOrDefault();
+            var pokemonOwnerEntity = await _context.PokemonOwners.
+                Where(o => o.PokemonId == pokemon.Id).FirstOrDefaultAsync();
 
-            var OwnerEntity = _context.Owners.
-                Where(o => o.Id == ownerId).FirstOrDefault();
+            var OwnerEntity = await _context.Owners.
+                Where(o => o.Id == ownerId).FirstOrDefaultAsync();
 
-            var pokemonCategoryEntity = _context.PokemonCategories.
-                Where(c => c.PokemonId == pokemon.Id).FirstOrDefault();
+            var pokemonCategoryEntity = await _context.PokemonCategories.
+                Where(c => c.PokemonId == pokemon.Id).FirstOrDefaultAsync();
 
-            var categoryEntity = _context.Categories.Where(o => o.Id == categoryId).FirstOrDefault();
+            var categoryEntity =  await _context.Categories.Where(o => o.Id == categoryId).FirstOrDefaultAsync();
 
             if (pokemonOwnerEntity != null && OwnerEntity != null)
             {
@@ -110,7 +110,7 @@ namespace PokemonReviewApp.Repository
                     Owner = OwnerEntity,
                     Pokemon = pokemon,
                 };
-                _context.Add(pokemonOwner);
+                await _context.AddAsync(pokemonOwner);
             }
 
             if (pokemonCategoryEntity != null && categoryEntity != null)
@@ -123,14 +123,14 @@ namespace PokemonReviewApp.Repository
                     Category = categoryEntity,
                     Pokemon = pokemon,
                 };
-                _context.Add(pokemonCategory);
+                await _context.AddAsync(pokemonCategory);
             }
             else
                 return false;
 
 
             _context.Update(pokemon);
-            return Save();
+            return await Save();
         }
     }
 }

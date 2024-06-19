@@ -1,4 +1,7 @@
-﻿using PokemonReviewApp.Data;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using PokemonReviewApp.Data;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
 
@@ -12,54 +15,55 @@ namespace PokemonReviewApp.Repository
             _context = context;
         }
 
-        public bool CreateOwner(Owner owner)
+        public async Task<bool> CreateOwner(Owner owner)
         {
-                _context.Add(owner);
-                return Save();
+                await _context.AddAsync(owner);
+                return await Save();
         }
 
-        public bool DeleteOwner(Owner owner)
+        public async Task<bool> DeleteOwner(Owner owner)
         {
             _context.Remove(owner);
-            return Save();
+            return await Save();
         }
 
-        public Owner GetOwner(int ownerId)
+        public async Task<Owner> GetOwner(int ownerId)
         {
-            return _context.Owners.Where(x=>x.Id == ownerId).FirstOrDefault();
+            return await _context.Owners.Where(x=>x.Id == ownerId).FirstOrDefaultAsync();
         }
 
-        public ICollection<Owner> GetOwnerOfAPokemon(int pokeId)
+        public async Task<ICollection<Owner>> GetOwnerOfAPokemon(int pokeId)
         {
-            var owners = _context.PokemonOwners.Where(x=>x.Pokemon.Id == pokeId).Select(c=>c.Owner).ToList();
+            var owners = await _context.PokemonOwners.Where(x=>x.Pokemon.Id == pokeId).Select(c=>c.Owner).ToListAsync();
             return owners;
         }
 
-        public ICollection<Owner> GetOwners()
+        public async Task<ICollection<Owner>> GetOwners()
         {
-            return _context.Owners.ToList();
+            return await _context.Owners.ToListAsync();
         }
 
-        public ICollection<Pokemon> GetPokemonByOwner(int ownerId)
+        public async Task<ICollection<Pokemon>> GetPokemonByOwner(int ownerId)
         {
-            return _context.PokemonOwners.Where(x=>x.Owner.Id == ownerId).Select(x=>x.Pokemon).ToList();
+            var data = await _context.PokemonOwners.Where(x => x.Owner.Id == ownerId).Select(x => x.Pokemon).ToListAsync();
+            return await _context.PokemonOwners.Where(x=>x.Owner.Id == ownerId).Select(x=>x.Pokemon).ToListAsync();
         }
 
-        public bool OwnerExists(int ownerId)
+        public async Task<bool> OwnerExists(int ownerId)
         {
-            return _context.Owners.Any(x=>x.Id == ownerId);
+            return await _context.Owners.AnyAsync(x=>x.Id == ownerId);
         }
 
-        public bool Save()
+        public async Task<bool> Save()
         {
-            var saved = _context.SaveChanges();
+            var saved = await _context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateOwner(Owner owner)
+        public async Task<bool> UpdateOwner(Owner owner)
         {
             _context.Update(owner);
-            return Save();
+            return await Save();
         }
     }
 }

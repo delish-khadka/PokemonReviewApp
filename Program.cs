@@ -1,3 +1,5 @@
+using CloudinaryDotNet;
+using dotenv.net;
 using Microsoft.EntityFrameworkCore;
 using PokemonReviewApp;
 using PokemonReviewApp.Data;
@@ -5,6 +7,24 @@ using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load environment variables
+DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
+
+// Get Cloudinary URL from environment variables
+string cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_URL");
+
+if (string.IsNullOrEmpty(cloudinaryUrl))
+{
+    throw new Exception("Cloudinary configuration is missing.");
+}
+
+// Configure Cloudinary
+Cloudinary cloudinary = new Cloudinary(cloudinaryUrl);
+cloudinary.Api.Secure = true;
+
+// Register Cloudinary as a singleton service
+builder.Services.AddSingleton(cloudinary);
 
 // Add services to the container.
 builder.Services.AddTransient<Seed>();

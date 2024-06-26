@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PokemonReviewApp.DTO;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
@@ -150,12 +151,16 @@ namespace PokemonReviewApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!await _reviewRepository.DeleteReviews(reviewsToDelete.ToList()))
+            if (reviewsToDelete.Count > 0)
             {
-                ModelState.AddModelError("", "Something went wrong while deleting reviews");
+                if (!await _reviewRepository.DeleteReviews(reviewsToDelete.ToList()))
+                {
+                    ModelState.AddModelError("", "Something went wrong while deleting reviews");
 
+                }
             }
-            if (await _pokemonRepository.DeletePokemon(pokemonToDelete))
+            
+            if (!await _pokemonRepository.DeletePokemon(pokemonToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting");
             }

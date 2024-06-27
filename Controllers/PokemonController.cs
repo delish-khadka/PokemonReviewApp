@@ -86,7 +86,7 @@ namespace PokemonReviewApp.Controllers
             [FromForm]IFormFile image,
             [FromForm] int ownerId, 
             [FromForm] int categoryId, 
-            [FromBody] PokemonDTO pokemonCreate)
+            [FromQuery]PokemonDTO pokemonCreate)
         {
             if (image == null || image.Length == 0)
             {
@@ -107,20 +107,10 @@ namespace PokemonReviewApp.Controllers
             }
             var pokemonMap = _mapper.Map<Pokemon>(pokemonCreate);
 
-            if (! await _pokemonRepository.CreatePokemon(ownerId, categoryId, pokemonMap))
+            if (! await _pokemonRepository.CreatePokemon(ownerId, categoryId, pokemonMap, image))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
-            }
-            using (var stream = image.OpenReadStream())
-            {
-                var uploadParams = new ImageUploadParams()
-                {
-                    File = new FileDescription(image.FileName, stream)
-                };
-
-                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-
             }
             return Ok("Successfully Created");
 

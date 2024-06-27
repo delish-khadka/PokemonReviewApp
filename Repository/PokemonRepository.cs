@@ -1,19 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CloudinaryDotNet.Actions;
+using CloudinaryDotNet;
+using Microsoft.EntityFrameworkCore;
 using PokemonReviewApp.Data;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PokemonReviewApp.Repository
 {
     public class PokemonRepository: IPokemonRepository
     {
         private readonly ApplicationDbContext _context;
-        public PokemonRepository(ApplicationDbContext context)
+        private readonly Cloudinary _cloudinary;
+
+        public PokemonRepository(ApplicationDbContext context, Cloudinary cloudinary)
         {
             _context = context;
+            _cloudinary = cloudinary;
         }
 
-        public async Task<bool> CreatePokemon(int ownerId, int categoryId, Pokemon pokemon)
+        public async Task<bool> CreatePokemon(int ownerId, int categoryId, Pokemon pokemon, IFormFile image)
         {
             var pokemonOwnerEntity = await _context.Owners.Where(a => a.Id == ownerId).FirstOrDefaultAsync();
             var category = await _context.Categories.Where(a => a.Id == categoryId).FirstOrDefaultAsync();
@@ -32,7 +38,16 @@ namespace PokemonReviewApp.Repository
                 Pokemon = pokemon,
             };
             await _context.AddAsync(pokemonCategory);
+            using (var stream = image.OpenReadStream())
+            {
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(image.FileName, stream)
+                };
 
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                pokemon.ImageUrl = uploadResult.Url.ToString();
+            }
             await _context.AddAsync(pokemon);
             return await Save();
         }

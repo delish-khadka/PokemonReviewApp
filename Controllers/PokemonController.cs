@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PokemonReviewApp.DTO;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
@@ -16,14 +19,16 @@ namespace PokemonReviewApp.Controllers
         private readonly ICategoryRepository _categoryRepository;
         private readonly IOwnerRepository _ownerRepository;
         private readonly IMapper _mapper;
+        private readonly Cloudinary _cloudinary;
         public PokemonController(IPokemonRepository pokemonRepository, IMapper mapper, ICategoryRepository categoryRepository
-            , IOwnerRepository ownerRepository, IReviewRepository reviewRepository)
+            , IOwnerRepository ownerRepository, IReviewRepository reviewRepository, Cloudinary cloudinary)
         {
             _pokemonRepository = pokemonRepository;
             _mapper = mapper;
             _categoryRepository = categoryRepository;
             _ownerRepository = ownerRepository;
             _reviewRepository = reviewRepository;
+            _cloudinary = cloudinary;
         }
 
         [HttpGet]
@@ -48,7 +53,7 @@ namespace PokemonReviewApp.Controllers
                 return NotFound();
             }
             var repdata = await _pokemonRepository.GetPokemon(pokeId);
-            var pokemon = _mapper.Map<PokemonDTO>(repdata);          
+            var pokemon = _mapper.Map<PokemonDTO>(repdata);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -76,8 +81,17 @@ namespace PokemonReviewApp.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> CreatePokemon([FromQuery] int ownerId, [FromQuery] int categoryId, [FromBody] PokemonDTO pokemonCreate)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreatePokemon(
+            [FromForm]IFormFile image,
+            [FromForm] int ownerId, 
+            [FromForm] int categoryId, 
+            [FromQuery]PokemonDTO pokemonCreate)
         {
+            if (image == null || image.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
             if (pokemonCreate == null)
             {
                 return BadRequest(ModelState);
@@ -93,7 +107,7 @@ namespace PokemonReviewApp.Controllers
             }
             var pokemonMap = _mapper.Map<Pokemon>(pokemonCreate);
 
-            if (! await _pokemonRepository.CreatePokemon(ownerId, categoryId, pokemonMap))
+            if (! await _pokemonRepository.CreatePokemon(ownerId, categoryId, pokemonMap, image))
             {
                 ModelState.AddModelError("", "Something went wrong");
                 return StatusCode(500, ModelState);
@@ -150,12 +164,16 @@ namespace PokemonReviewApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!await _reviewRepository.DeleteReviews(reviewsToDelete.ToList()))
+            if (reviewsToDelete.Count > 0)
             {
-                ModelState.AddModelError("", "Something went wrong while deleting reviews");
+                if (!await _reviewRepository.DeleteReviews(reviewsToDelete.ToList()))
+                {
+                    ModelState.AddModelError("", "Something went wrong while deleting reviews");
 
+                }
             }
-            if (await _pokemonRepository.DeletePokemon(pokemonToDelete))
+            
+            if (!await _pokemonRepository.DeletePokemon(pokemonToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong while deleting");
             }
